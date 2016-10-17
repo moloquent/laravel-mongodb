@@ -17,5 +17,6 @@ class PassportServiceProvider extends ServiceProvider
         $loader->alias('Laravel\Passport\Client', Client::class);
         $loader->alias('Laravel\Passport\PersonalAccessClient', PersonalAccessClient::class);
         $loader->alias('Laravel\Passport\Token', Token::class);
+        $loader->alias('Laravel\Passport\Bridge\AccessTokenRepository', Bridge\AccessTokenRepository::class);
     }
 }
