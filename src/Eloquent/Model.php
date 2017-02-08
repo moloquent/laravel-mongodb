@@ -13,6 +13,7 @@ use Moloquent\Relations\EmbedsOneOrMany;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\UTCDateTime;
 use ReflectionMethod;
+use Illuminate\Support\Str;
 
 abstract class Model extends BaseModel
 {
@@ -755,5 +756,18 @@ abstract class Model extends BaseModel
                 $this->saveCasts[$key] = 'ObjectID';
             }
         }
+    }
+    
+    /**
+     * Get the default foreign key name for the model.
+     *
+     * @return string
+     */
+    public function getForeignKey()
+    {
+		if( substr($this->primaryKey,0,1) === '_' )
+	        return Str::snake(class_basename($this)).''.$this->primaryKey;
+		else
+	        return Str::snake(class_basename($this)).'_'.$this->primaryKey;
     }
 }
