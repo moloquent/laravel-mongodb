@@ -29,10 +29,7 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
     protected $columns = [];
 
     /**
-     * Create a new schema blueprint.
-     *
-     * @param string  $table
-     * @param Closure $callback
+     * @inheritdoc
      */
     public function __construct(Connection $connection, $collection)
     {
@@ -42,14 +39,7 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
     }
 
     /**
-     * Specify an index for the collection.
-     *
-     * @param string|array $columns
-     * @param array        $options
-     * @param string       $name
-     * @param string|null  $algorithm
-     *
-     * @return Blueprint
+     * @inheritdoc
      */
     public function index($columns = null, $name = null, $algorithm = null, $options = [])
     {
@@ -73,14 +63,7 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
     }
 
     /**
-     * Specify the primary key(s) for the table.
-     *
-     * @param string|array $columns
-     * @param string       $name
-     * @param string|null  $algorithm
-     * @param array        $options
-     *
-     * @return \Illuminate\Support\Fluent
+     * @inheritdoc
      */
     public function primary($columns = null, $name = null, $algorithm = null, $options = [])
     {
@@ -88,11 +71,7 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
     }
 
     /**
-     * Indicate that the given index should be dropped.
-     *
-     * @param string|array $columns
-     *
-     * @return Blueprint
+     * @inheritdoc
      */
     public function dropIndex($columns = null)
     {
@@ -104,7 +83,7 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
             $transform = [];
 
             foreach ($columns as $column) {
-                $transform[$column] = $column.'_1';
+                $transform[$column] = $column . '_1';
             }
 
             $columns = $transform;
@@ -118,14 +97,7 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
     }
 
     /**
-     * Specify a unique index for the collection.
-     *
-     * @param string|array $columns
-     * @param string       $name
-     * @param string|null  $algorithm
-     * @param array        $options
-     *
-     * @return Blueprint
+     * @inheritdoc
      */
     public function unique($columns = null, $name = null, $algorithm = null, $options = [])
     {
@@ -141,8 +113,7 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
     /**
      * Specify a non blocking index for the collection.
      *
-     * @param string|array $columns
-     *
+     * @param  string|array $columns
      * @return Blueprint
      */
     public function background($columns = null)
@@ -157,9 +128,8 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
     /**
      * Specify a sparse index for the collection.
      *
-     * @param string|array $columns
-     * @param array        $options
-     *
+     * @param  string|array $columns
+     * @param  array        $options
      * @return Blueprint
      */
     public function sparse($columns = null, $options = [])
@@ -177,9 +147,8 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
      * Specify the number of seconds after wich a document should be considered expired based,
      * on the given single-field index containing a date.
      *
-     * @param string|array $columns
-     * @param int          $seconds
-     *
+     * @param  string|array $columns
+     * @param  int          $seconds
      * @return Blueprint
      */
     public function expire($columns, $seconds)
@@ -192,9 +161,7 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
     }
 
     /**
-     * Indicate that the table needs to be created.
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function create()
     {
@@ -207,9 +174,7 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
     }
 
     /**
-     * Indicate that the collection should be dropped.
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function drop()
     {
@@ -217,13 +182,7 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
     }
 
     /**
-     * Add a new column to the blueprint.
-     *
-     * @param string $type
-     * @param string $name
-     * @param array  $parameters
-     *
-     * @return Blueprint
+     * @inheritdoc
      */
     public function addColumn($type, $name, array $parameters = [])
     {
@@ -235,9 +194,8 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
     /**
      * Specify a sparse and unique index for the collection.
      *
-     * @param string|array $columns
-     * @param array        $options
-     *
+     * @param  string|array $columns
+     * @param  array        $options
      * @return Blueprint
      */
     public function sparse_and_unique($columns = null, $options = [])
@@ -255,8 +213,7 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
     /**
      * Allow fluent columns.
      *
-     * @param string|array $columns
-     *
+     * @param  string|array $columns
      * @return string|array
      */
     protected function fluent($columns = null)
@@ -273,6 +230,8 @@ class Blueprint extends \Illuminate\Database\Schema\Blueprint
     /**
      * Allows the use of unsupported schema methods.
      *
+     * @param $method
+     * @param $args
      * @return Blueprint
      */
     public function __call($method, $args)

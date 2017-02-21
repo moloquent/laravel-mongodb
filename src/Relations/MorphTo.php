@@ -1,16 +1,11 @@
 <?php
 
-namespace Moloquent\Relations;
-
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphTo as EloquentMorphTo;
 
 class MorphTo extends EloquentMorphTo
 {
-    use HasOneOrManyTrait;
-
     /**
-     * Set the base constraints on the relation query.
+     * @inheritdoc
      */
     public function addConstraints()
     {
@@ -18,32 +13,12 @@ class MorphTo extends EloquentMorphTo
             // For belongs to relationships, which are essentially the inverse of has one
             // or has many relationships, we need to actually query on the primary key
             // of the related models matching on the foreign key that's on a parent.
-            $this->query->where($this->otherKey, '=', $this->parent->{$this->foreignKey});
+            $this->query->where($this->getOwnerKey(), '=', $this->parent->{$this->foreignKey});
         }
     }
 
     /**
-     * Build a dictionary with the models.
-     *
-     * @param \Illuminate\Database\Eloquent\Collection $models
-     *
-     * @return void
-     */
-    protected function buildDictionary(Collection $models)
-    {
-        foreach ($models as $model) {
-            if ($model->{$this->morphType}) {
-                $this->dictionary[$model->{$this->morphType}][(string) $model->{$this->foreignKey}][] = $model;
-            }
-        }
-    }
-
-    /**
-     * Get all of the relation results for a type.
-     *
-     * @param string $type
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @inheritdoc
      */
     protected function getResultsByType($type)
     {
@@ -53,8 +28,16 @@ class MorphTo extends EloquentMorphTo
 
         $query = $instance->newQuery();
 
-        $query = $this->useWithTrashed($query);
+        return $query->whereIn($key, $this->gatherKeysByType($type))->get();
+    }
 
-        return $query->whereIn($key, $this->gatherKeysByType($type)->all())->get();
+    /**
+     * Get the owner key with backwards compatible support.
+     *
+     * @return string
+     */
+    public function getOwnerKey()
+    {
+        return property_exists($this, 'ownerKey') ? $this->ownerKey : $this->otherKey;
     }
 }

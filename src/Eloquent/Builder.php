@@ -4,7 +4,6 @@ namespace Moloquent\Eloquent;
 
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Collection;
 use MongoDB\Driver\Cursor;
 use MongoDB\Model\BSONDocument;
 
@@ -16,17 +15,22 @@ class Builder extends EloquentBuilder
      * @var array
      */
     protected $passthru = [
-        'toSql', 'insert', 'insertGetId', 'pluck',
-        'count', 'min', 'max', 'avg', 'sum', 'exists', 'push', 'pull',
+        'toSql',
+        'insert',
+        'insertGetId',
+        'pluck',
+        'count',
+        'min',
+        'max',
+        'avg',
+        'sum',
+        'exists',
+        'push',
+        'pull',
     ];
 
     /**
-     * Update a record in the database.
-     *
-     * @param array $values
-     * @param array $options
-     *
-     * @return int
+     * @inheritdoc
      */
     public function update(array $values, array $options = [])
     {
@@ -42,11 +46,7 @@ class Builder extends EloquentBuilder
     }
 
     /**
-     * Insert a new record into the database.
-     *
-     * @param array $values
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function insert(array $values)
     {
@@ -62,12 +62,7 @@ class Builder extends EloquentBuilder
     }
 
     /**
-     * Insert a new record and get the value of the primary key.
-     *
-     * @param array  $values
-     * @param string $sequence
-     *
-     * @return int
+     * @inheritdoc
      */
     public function insertGetId(array $values, $sequence = null)
     {
@@ -83,9 +78,7 @@ class Builder extends EloquentBuilder
     }
 
     /**
-     * Delete a record from the database.
-     *
-     * @return mixed
+     * @inheritdoc
      */
     public function delete()
     {
@@ -103,10 +96,9 @@ class Builder extends EloquentBuilder
     /**
      * Increment a column's value by a given amount.
      *
-     * @param string $column
-     * @param int    $amount
-     * @param array  $extra
-     *
+     * @param  string  $column
+     * @param  int     $amount
+     * @param  array   $extra
      * @return int
      */
     public function increment($column, $amount = 1, array $extra = [])
@@ -132,13 +124,7 @@ class Builder extends EloquentBuilder
     }
 
     /**
-     * Decrement a column's value by a given amount.
-     *
-     * @param string $column
-     * @param int    $amount
-     * @param array  $extra
-     *
-     * @return int
+     * @inheritdoc
      */
     public function decrement($column, $amount = 1, array $extra = [])
     {
@@ -161,15 +147,7 @@ class Builder extends EloquentBuilder
     }
 
     /**
-     * Add the "has" condition where clause to the query.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder            $hasQuery
-     * @param \Illuminate\Database\Eloquent\Relations\Relation $relation
-     * @param string                                           $operator
-     * @param int                                              $count
-     * @param string                                           $boolean
-     *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @inheritdoc
      */
     protected function addHasWhere(EloquentBuilder $hasQuery, Relation $relation, $operator, $count, $boolean)
     {
@@ -177,10 +155,9 @@ class Builder extends EloquentBuilder
 
         // Get the number of related objects for each possible parent.
         $relations = $query->pluck($relation->getHasCompareKey());
-        $relations = array_map(function ($id) {
-            return (string) $id;
-        }, is_array($relations) ? $relations : $relations->toArray());
-        $relationCount = array_count_values($relations);
+        $relationCount = array_count_values(array_map(function ($id) {
+            return (string) $id; // Convert Back ObjectIds to Strings
+        }, is_array($relations) ? $relations : $relations->toArray()));
 
         // Remove unwanted related objects based on the operator and count.
         $relationCount = array_filter($relationCount, function ($counted) use ($count, $operator) {
@@ -207,31 +184,18 @@ class Builder extends EloquentBuilder
 
         // If we are comparing to 0, we need an additional $not flip.
         if ($count == 0) {
-            $not = !$not;
+            $not = ! $not;
         }
 
         // All related ids.
-        $relatedIds = array_map(function ($id) use ($relation) {
-            $relationModel = $relation->getRelated();
-            $relationModel->setRelationCast($relation->getHasCompareKey());
-            if ($relationModel->useMongoId()
-                && $relationModel->hasCast($relation->getHasCompareKey(), null, 'set')) {
-                $id = $relationModel->castAttribute($relation->getHasCompareKey(), $id, 'set');
-            }
-
-            return $id;
-        }, array_keys($relationCount));
+        $relatedIds = array_keys($relationCount);
 
         // Add whereIn to the query.
         return $this->whereIn($this->model->getKeyName(), $relatedIds, $boolean, $not);
     }
 
     /**
-     * Create a raw database expression.
-     *
-     * @param closure $expression
-     *
-     * @return mixed
+     * @inheritdoc
      */
     public function raw($expression = null)
     {
@@ -243,16 +207,12 @@ class Builder extends EloquentBuilder
             $results = iterator_to_array($results, false);
 
             return $this->model->hydrate($results);
-        }
-
-        // Convert Mongo BSONDocument to a single object.
+        } // Convert Mongo BSONDocument to a single object.
         elseif ($results instanceof BSONDocument) {
             $results = $results->getArrayCopy();
 
             return $this->model->newFromBuilder((array) $results);
-        }
-
-        // The result is a single object.
+        } // The result is a single object.
         elseif (is_array($results) and array_key_exists('_id', $results)) {
             return $this->model->newFromBuilder((array) $results);
         }

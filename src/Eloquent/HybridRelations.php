@@ -1,37 +1,35 @@
 <?php
-
 namespace Moloquent\Eloquent;
 
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Str;
-use Moloquent\Relations\BelongsTo;
-use Moloquent\Relations\BelongsToMany;
-use Moloquent\Relations\HasMany;
-use Moloquent\Relations\HasOne;
-use Moloquent\Relations\MorphMany;
-use Moloquent\Relations\MorphOne;
-use Moloquent\Relations\MorphTo;
+use Jenssegers\Mongodb\Relations\BelongsTo;
+use Jenssegers\Mongodb\Relations\BelongsToMany;
+use Jenssegers\Mongodb\Relations\HasMany;
+use Jenssegers\Mongodb\Relations\HasOne;
+use Jenssegers\Mongodb\Relations\MorphTo;
 
 trait HybridRelations
 {
     /**
      * Define a one-to-one relationship.
      *
-     * @param string $related
-     * @param string $foreignKey
-     * @param string $localKey
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @param  string $related
+     * @param  string $foreignKey
+     * @param  string $localKey
+     * @return HasOne
      */
     public function hasOne($related, $foreignKey = null, $localKey = null)
     {
         // Check if it is a relation with an original model.
-        if (!is_subclass_of($related, 'Moloquent\Eloquent\Model')) {
+        if (! is_subclass_of($related, \Jenssegers\Mongodb\Eloquent\Model::class)) {
             return parent::hasOne($related, $foreignKey, $localKey);
         }
 
         $foreignKey = $foreignKey ?: $this->getForeignKey();
 
-        $instance = new $related();
+        $instance = new $related;
 
         $localKey = $localKey ?: $this->getKeyName();
 
@@ -41,26 +39,23 @@ trait HybridRelations
     /**
      * Define a polymorphic one-to-one relationship.
      *
-     * @param string $related
-     * @param string $name
-     * @param string $type
-     * @param string $id
-     * @param string $localKey
-     *
+     * @param  string $related
+     * @param  string $name
+     * @param  string $type
+     * @param  string $id
+     * @param  string $localKey
      * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
     public function morphOne($related, $name, $type = null, $id = null, $localKey = null)
     {
         // Check if it is a relation with an original model.
-        if (!is_subclass_of($related, 'Moloquent\Eloquent\Model')) {
+        if (! is_subclass_of($related, \Jenssegers\Mongodb\Eloquent\Model::class)) {
             return parent::morphOne($related, $name, $type, $id, $localKey);
         }
 
-        $instance = new $related();
+        $instance = new $related;
 
         list($type, $id) = $this->getMorphs($name, $type, $id);
-
-        $table = $instance->getTable();
 
         $localKey = $localKey ?: $this->getKeyName();
 
@@ -70,22 +65,21 @@ trait HybridRelations
     /**
      * Define a one-to-many relationship.
      *
-     * @param string $related
-     * @param string $foreignKey
-     * @param string $localKey
-     *
+     * @param  string $related
+     * @param  string $foreignKey
+     * @param  string $localKey
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function hasMany($related, $foreignKey = null, $localKey = null)
     {
         // Check if it is a relation with an original model.
-        if (!is_subclass_of($related, 'Moloquent\Eloquent\Model')) {
+        if (! is_subclass_of($related, \Jenssegers\Mongodb\Eloquent\Model::class)) {
             return parent::hasMany($related, $foreignKey, $localKey);
         }
 
         $foreignKey = $foreignKey ?: $this->getForeignKey();
 
-        $instance = new $related();
+        $instance = new $related;
 
         $localKey = $localKey ?: $this->getKeyName();
 
@@ -95,12 +89,11 @@ trait HybridRelations
     /**
      * Define a polymorphic one-to-many relationship.
      *
-     * @param string $related
-     * @param string $name
-     * @param string $type
-     * @param string $id
-     * @param string $localKey
-     *
+     * @param  string $related
+     * @param  string $name
+     * @param  string $type
+     * @param  string $id
+     * @param  string $localKey
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function morphMany($related, $name, $type = null, $id = null, $localKey = null)
@@ -127,11 +120,10 @@ trait HybridRelations
     /**
      * Define an inverse one-to-one or many relationship.
      *
-     * @param string $related
-     * @param string $foreignKey
-     * @param string $otherKey
-     * @param string $relation
-     *
+     * @param  string $related
+     * @param  string $foreignKey
+     * @param  string $otherKey
+     * @param  string $relation
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function belongsTo($related, $foreignKey = null, $otherKey = null, $relation = null)
@@ -157,7 +149,7 @@ trait HybridRelations
             $foreignKey = Str::snake($relation).'_id';
         }
 
-        $instance = new $related();
+        $instance = new $related;
 
         // Once we have the foreign key names, we'll just create a new Eloquent query
         // for the related models and returns the relationship instance which will
@@ -172,11 +164,10 @@ trait HybridRelations
     /**
      * Define a polymorphic, inverse one-to-one or many relationship.
      *
-     * @param string $name
-     * @param string $type
-     * @param string $id
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     * @param  string $name
+     * @param  string $type
+     * @param  string $id
+     * @return MorphTo
      */
     public function morphTo($name = null, $type = null, $id = null)
     {
@@ -206,7 +197,7 @@ trait HybridRelations
         else {
             $class = $this->getActualClassNameForMorph($class);
 
-            $instance = new $class();
+            $instance = new $class;
 
             return new MorphTo(
                 $instance->newQuery(), $this, $id, $instance->getKeyName(), $type, $name
@@ -217,13 +208,12 @@ trait HybridRelations
     /**
      * Define a many-to-many relationship.
      *
-     * @param string $related
-     * @param string $collection
-     * @param string $foreignKey
-     * @param string $otherKey
-     * @param string $relation
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @param  string $related
+     * @param  string $collection
+     * @param  string $foreignKey
+     * @param  string $otherKey
+     * @param  string $relation
+     * @return BelongsToMany
      */
     public function belongsToMany($related, $collection = null, $foreignKey = null, $otherKey = null, $relation = null)
     {
@@ -231,7 +221,7 @@ trait HybridRelations
         // name of the calling function. We will use that function name as the
         // title of this relation since that is a great convention to apply.
         if (is_null($relation)) {
-            $relation = $this->getBelongsToManyCaller();
+            $relation = $this->guessBelongsToManyRelation();
         }
 
         // Check if it is a relation with an original model.
@@ -244,7 +234,7 @@ trait HybridRelations
         // instances as well as the relationship instances we need for this.
         $foreignKey = $foreignKey ?: $this->getForeignKey().'s';
 
-        $instance = new $related();
+        $instance = new $related;
 
         $otherKey = $otherKey ?: $instance->getForeignKey().'s';
 
@@ -261,5 +251,19 @@ trait HybridRelations
         $query = $instance->newQuery();
 
         return new BelongsToMany($query, $this, $collection, $foreignKey, $otherKey, $relation);
+    }
+
+    /**
+     * Get the relationship name of the belongs to many.
+     *
+     * @return string
+     */
+    protected function guessBelongsToManyRelation()
+    {
+        if (method_exists($this, 'getBelongsToManyCaller')) {
+            return $this->getBelongsToManyCaller();
+        }
+
+        return parent::guessBelongsToManyRelation();
     }
 }
