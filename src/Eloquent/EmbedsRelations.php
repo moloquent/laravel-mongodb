@@ -1,4 +1,5 @@
-<?php namespace Jenssegers\Mongodb\Eloquent;
+<?php
+namespace Moloquent\Eloquent;
 
 use Jenssegers\Mongodb\Relations\EmbedsMany;
 use Jenssegers\Mongodb\Relations\EmbedsOne;
