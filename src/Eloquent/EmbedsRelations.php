@@ -1,8 +1,7 @@
 <?php
 namespace Moloquent\Eloquent;
 
-use Jenssegers\Mongodb\Relations\EmbedsMany;
-use Jenssegers\Mongodb\Relations\EmbedsOne;
+use Moloquent\Relations\EmbedsMany;
 
 trait EmbedsRelations
 {
@@ -13,7 +12,7 @@ trait EmbedsRelations
      * @param  string $localKey
      * @param  string $foreignKey
      * @param  string $relation
-     * @return \Jenssegers\Mongodb\Relations\EmbedsMany
+     * @return EmbedsMany
      */
     protected function embedsMany($related, $localKey = null, $foreignKey = null, $relation = null)
     {
@@ -48,7 +47,7 @@ trait EmbedsRelations
      * @param  string $localKey
      * @param  string $foreignKey
      * @param  string $relation
-     * @return \Jenssegers\Mongodb\Relations\EmbedsOne
+     * @return EmbedsOne
      */
     protected function embedsOne($related, $localKey = null, $foreignKey = null, $relation = null)
     {
