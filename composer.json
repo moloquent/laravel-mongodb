@@ -40,8 +40,8 @@
     "satooshi/php-coveralls": "^1.0"
   },
   "autoload": {
-    "psr-4" :{
-      "Moloquent\\": "src/"
+    "psr-0": {
+      "Moloquent\\": "src/",
     }
   },
   "autoload-dev": {
