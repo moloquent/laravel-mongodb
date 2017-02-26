@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model as BaseModel;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 use Moloquent\Query\Builder as QueryBuilder;
+use Moloquent\Relations\EmbedsMany;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\UTCDateTime;
 
@@ -74,7 +75,7 @@ abstract class Model extends BaseModel
      * @param string $foreignKey
      * @param string $relation
      *
-     * @return \Moloquent\Relations\EmbedsMany
+     * @return EmbedsMany
      */
     protected function embedsMany($related, $localKey = null, $foreignKey = null, $relation = null)
     {

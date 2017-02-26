@@ -2,6 +2,8 @@
 
 use Illuminate\Auth\Passwords\PasswordBroker;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthTest extends TestCase
 {
