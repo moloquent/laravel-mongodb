@@ -1,5 +1,9 @@
 <?php
 
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Queue;
+use Moloquent\Queue\MongoJob;
+
 class QueueTest extends TestCase
 {
     public function setUp()
@@ -18,7 +22,7 @@ class QueueTest extends TestCase
 
         // Get and reserve the test job (next available)
         $job = Queue::pop('test');
-        $this->assertInstanceOf(Jenssegers\Mongodb\Queue\MongoJob::class, $job);
+        $this->assertInstanceOf(MongoJob::class, $job);
         $this->assertEquals(1, $job->isReserved());
         $this->assertEquals(json_encode([
             'displayName' => 'test',

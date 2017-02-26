@@ -2,6 +2,7 @@
 namespace Moloquent\Eloquent;
 
 use Moloquent\Relations\EmbedsMany;
+use Moloquent\Relations\EmbedsOne;
 
 trait EmbedsRelations
 {

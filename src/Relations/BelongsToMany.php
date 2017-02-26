@@ -1,4 +1,5 @@
-<?php namespace Jenssegers\Mongodb\Relations;
+<?php
+namespace Moloquent\Relations;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;

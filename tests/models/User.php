@@ -1,11 +1,16 @@
 <?php
 
+use Illuminate\Auth\Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Moloquent\Auth\User as Authenticatable;
 
-class User extends Authenticatable
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Moloquent\Eloquent\Model as Eloquent;
+
+class User extends Eloquent implements AuthenticatableContract
 {
-    use Notifiable;
+    use Authenticatable, Notifiable, \Moloquent\Eloquent\EmbedsRelations;
 
     protected $dates = ['birthday', 'entry.date'];
     protected static $unguarded = true;
@@ -64,4 +69,5 @@ class User extends Authenticatable
     {
         return 'l jS \of F Y h:i:s A';
     }
+
 }
