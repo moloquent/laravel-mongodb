@@ -4,29 +4,48 @@ namespace Moloquent\Queue;
 
 use Carbon\Carbon;
 use Illuminate\Queue\DatabaseQueue;
-use Illuminate\Queue\Jobs\DatabaseJob;
+use Moloquent\Connection;
 use MongoDB\Operation\FindOneAndUpdate;
 
 class MongoQueue extends DatabaseQueue
 {
     /**
-     * Pop the next job off of the queue.
+     * The expiration time of a job.
      *
-     * @param string $queue
+     * @var int|null
+     */
+    protected $retryAfter = 60;
+
+    /**
+     * The connection name for the queue.
      *
-     * @return \Illuminate\Contracts\Queue\Job|null
+     * @var string
+     */
+    protected $connectionName;
+
+    /**
+     * @inheritdoc
+     */
+    public function __construct(Connection $database, $table, $default = 'default', $retryAfter = 60)
+    {
+        parent::__construct($database, $table, $default, $retryAfter);
+        $this->retryAfter = $retryAfter;
+    }
+
+    /**
+     * @inheritdoc
      */
     public function pop($queue = null)
     {
         $queue = $this->getQueue($queue);
 
-        if (!is_null($this->expire)) {
+        if (! is_null($this->retryAfter)) {
             $this->releaseJobsThatHaveBeenReservedTooLong($queue);
         }
 
         if ($job = $this->getNextAvailableJobAndReserve($queue)) {
-            return new DatabaseJob(
-                $this->container, $this, $job, $queue
+            return new MongoJob(
+                $this->container, $this, $job, $this->connectionName, $queue
             );
         }
     }
@@ -42,7 +61,7 @@ class MongoQueue extends DatabaseQueue
      * once. To solve this we use findOneAndUpdate to lock the next jobs
      * record while flagging it as reserved at the same time.
      *
-     * @param string|null $queue
+     * @param  string|null $queue
      *
      * @return \StdClass|null
      */
@@ -50,20 +69,19 @@ class MongoQueue extends DatabaseQueue
     {
         $job = $this->database->getCollection($this->table)->findOneAndUpdate(
             [
-                'queue'        => $this->getQueue($queue),
-                'reserved'     => 0,
-                'available_at' => ['$lte' => $this->getTime()],
-
+                'queue' => $this->getQueue($queue),
+                'reserved' => 0,
+                'available_at' => ['$lte' => Carbon::now()->getTimestamp()],
             ],
             [
                 '$set' => [
-                    'reserved'    => 1,
-                    'reserved_at' => $this->getTime(),
+                    'reserved' => 1,
+                    'reserved_at' => Carbon::now()->getTimestamp(),
                 ],
             ],
             [
                 'returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER,
-                'sort'           => ['available_at' => 1],
+                'sort' => ['available_at' => 1],
             ]
         );
 
@@ -77,13 +95,12 @@ class MongoQueue extends DatabaseQueue
     /**
      * Release the jobs that have been reserved for too long.
      *
-     * @param string $queue
-     *
+     * @param  string $queue
      * @return void
      */
     protected function releaseJobsThatHaveBeenReservedTooLong($queue)
     {
-        $expiration = Carbon::now()->subSeconds($this->expire)->getTimestamp();
+        $expiration = Carbon::now()->subSeconds($this->retryAfter)->getTimestamp();
         $now = time();
 
         $reserved = $this->database->collection($this->table)
@@ -108,27 +125,21 @@ class MongoQueue extends DatabaseQueue
     /**
      * Release the given job ID from reservation.
      *
-     * @param string $id
-     * @param int    $attempts
-     *
+     * @param  string $id
+     * @param  int    $attempts
      * @return void
      */
     protected function releaseJob($id, $attempts)
     {
         $this->database->table($this->table)->where('_id', $id)->update([
-            'reserved'    => 0,
+            'reserved' => 0,
             'reserved_at' => null,
-            'attempts'    => $attempts,
+            'attempts' => $attempts,
         ]);
     }
 
     /**
-     * Delete a reserved job from the queue.
-     *
-     * @param string $queue
-     * @param string $id
-     *
-     * @return void
+     * @inheritdoc
      */
     public function deleteReserved($queue, $id)
     {

@@ -63,13 +63,46 @@ class Builder extends BaseBuilder
      * @var array
      */
     public $operators = [
-        '=', '<', '>', '<=', '>=', '<>', '!=',
-        'like', 'not like', 'between', 'ilike',
-        '&', '|', '^', '<<', '>>',
-        'rlike', 'regexp', 'not regexp',
-        'exists', 'type', 'mod', 'where', 'all', 'size', 'regex', 'text', 'slice', 'elemmatch',
-        'geowithin', 'geointersects', 'near', 'nearsphere', 'geometry',
-        'maxdistance', 'center', 'centersphere', 'box', 'polygon', 'uniquedocs',
+        '=',
+        '<',
+        '>',
+        '<=',
+        '>=',
+        '<>',
+        '!=',
+        'like',
+        'not like',
+        'between',
+        'ilike',
+        '&',
+        '|',
+        '^',
+        '<<',
+        '>>',
+        'rlike',
+        'regexp',
+        'not regexp',
+        'exists',
+        'type',
+        'mod',
+        'where',
+        'all',
+        'size',
+        'regex',
+        'text',
+        'slice',
+        'elemmatch',
+        'geowithin',
+        'geointersects',
+        'near',
+        'nearsphere',
+        'geometry',
+        'maxdistance',
+        'center',
+        'centersphere',
+        'box',
+        'polygon',
+        'uniquedocs',
     ];
 
     /**
@@ -78,12 +111,12 @@ class Builder extends BaseBuilder
      * @var array
      */
     protected $conversion = [
-        '='  => '=',
+        '=' => '=',
         '!=' => '$ne',
         '<>' => '$ne',
-        '<'  => '$lt',
+        '<' => '$lt',
         '<=' => '$lte',
-        '>'  => '$gt',
+        '>' => '$gt',
         '>=' => '$gte',
     ];
 
@@ -95,10 +128,7 @@ class Builder extends BaseBuilder
     protected $useCollections;
 
     /**
-     * Create a new query builder instance.
-     *
-     * @param Connection $connection
-     * @param Processor  $processor
+     * @inheritdoc
      */
     public function __construct(Connection $connection, Processor $processor)
     {
@@ -109,7 +139,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Returns true if Laravel or Lumen >= 5.3.
+     * Returns true if Laravel or Lumen >= 5.3
      *
      * @return bool
      */
@@ -119,9 +149,6 @@ class Builder extends BaseBuilder
             $version = app()->version();
             $version = filter_var(explode(')', $version)[0], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION); // lumen
             return version_compare($version, '5.3', '>=');
-        } else {
-            $connection = $this->getConnection();
-            return $connection->getConfig('use_collection');
         }
     }
 
@@ -168,12 +195,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Execute a query for a single record by ID.
-     *
-     * @param mixed $id
-     * @param array $columns
-     *
-     * @return mixed
+     * @inheritdoc
      */
     public function find($id, $columns = [])
     {
@@ -181,11 +203,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Execute the query as a "select" statement.
-     *
-     * @param array $columns
-     *
-     * @return array|static[]|Collection
+     * @inheritdoc
      */
     public function get($columns = [])
     {
@@ -195,8 +213,7 @@ class Builder extends BaseBuilder
     /**
      * Execute the query as a fresh "select" statement.
      *
-     * @param array $columns
-     *
+     * @param  array $columns
      * @return array|static[]|Collection
      */
     public function getFresh($columns = [])
@@ -255,8 +272,7 @@ class Builder extends BaseBuilder
                     // Translate count into sum.
                     if ($function == 'count') {
                         $group['aggregate'] = ['$sum' => 1];
-                    }
-                    // Pass other functions directly.
+                    } // Pass other functions directly.
                     else {
                         $group['aggregate'] = ['$'.$function => '$'.$column];
                     }
@@ -319,9 +335,7 @@ class Builder extends BaseBuilder
 
             // Return results
             return $this->useCollections ? new Collection($results) : $results;
-        }
-
-        // Distinct query
+        } // Distinct query
         elseif ($this->distinct) {
             // Return distinct results directly
             $column = isset($this->columns[0]) ? $this->columns[0] : '_id';
@@ -334,9 +348,7 @@ class Builder extends BaseBuilder
             }
 
             return $this->useCollections ? new Collection($result) : $result;
-        }
-
-        // Normal query
+        } // Normal query
         else {
             $columns = [];
 
@@ -382,7 +394,6 @@ class Builder extends BaseBuilder
 
             // Return results as an array with numeric keys
             $results = iterator_to_array($cursor, false);
-
             return $this->useCollections ? new Collection($results) : $results;
         }
     }
@@ -397,25 +408,20 @@ class Builder extends BaseBuilder
         $key = [
             'connection' => $this->collection->getDatabaseName(),
             'collection' => $this->collection->getCollectionName(),
-            'wheres'     => $this->wheres,
-            'columns'    => $this->columns,
-            'groups'     => $this->groups,
-            'orders'     => $this->orders,
-            'offset'     => $this->offset,
-            'limit'      => $this->limit,
-            'aggregate'  => $this->aggregate,
+            'wheres' => $this->wheres,
+            'columns' => $this->columns,
+            'groups' => $this->groups,
+            'orders' => $this->orders,
+            'offset' => $this->offset,
+            'limit' => $this->limit,
+            'aggregate' => $this->aggregate,
         ];
 
         return md5(serialize(array_values($key)));
     }
 
     /**
-     * Execute an aggregate function on the database.
-     *
-     * @param string $function
-     * @param array  $columns
-     *
-     * @return mixed
+     * @inheritdoc
      */
     public function aggregate($function, $columns = [])
     {
@@ -437,9 +443,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Determine if any rows exist for the current query.
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function exists()
     {
@@ -447,9 +451,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Force the query to only return distinct results.
-     *
-     * @return Builder
+     * @inheritdoc
      */
     public function distinct($column = false)
     {
@@ -463,12 +465,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Add an "order by" clause to the query.
-     *
-     * @param string $column
-     * @param string $direction
-     *
-     * @return Builder
+     * @inheritdoc
      */
     public function orderBy($column, $direction = 'asc')
     {
@@ -486,14 +483,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Add a where between statement to the query.
-     *
-     * @param string $column
-     * @param array  $values
-     * @param string $boolean
-     * @param bool   $not
-     *
-     * @return Builder
+     * @inheritdoc
      */
     public function whereBetween($column, array $values, $boolean = 'and', $not = false)
     {
@@ -505,12 +495,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Set the limit and offset for a given page.
-     *
-     * @param int $page
-     * @param int $perPage
-     *
-     * @return \Illuminate\Database\Query\Builder|static
+     * @inheritdoc
      */
     public function forPage($page, $perPage = 15)
     {
@@ -520,11 +505,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Insert a new record into the database.
-     *
-     * @param array $values
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function insert(array $values)
     {
@@ -552,12 +533,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Insert a new record and get the value of the primary key.
-     *
-     * @param array  $values
-     * @param string $sequence
-     *
-     * @return int
+     * @inheritdoc
      */
     public function insertGetId(array $values, $sequence = null)
     {
@@ -574,12 +550,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Update a record in the database.
-     *
-     * @param array $values
-     * @param array $options
-     *
-     * @return int
+     * @inheritdoc
      */
     public function update(array $values, array $options = [])
     {
@@ -592,13 +563,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Increment a column's value by a given amount.
-     *
-     * @param string $column
-     * @param int    $amount
-     * @param array  $extra
-     *
-     * @return int
+     * @inheritdoc
      */
     public function increment($column, $amount = 1, array $extra = [], array $options = [])
     {
@@ -619,13 +584,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Decrement a column's value by a given amount.
-     *
-     * @param string $column
-     * @param int    $amount
-     * @param array  $extra
-     *
-     * @return int
+     * @inheritdoc
      */
     public function decrement($column, $amount = 1, array $extra = [], array $options = [])
     {
@@ -633,12 +592,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Get an array with the values of a given column.
-     *
-     * @param string      $column
-     * @param string|null $key
-     *
-     * @return array
+     * @inheritdoc
      */
     public function pluck($column, $key = null)
     {
@@ -659,11 +613,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Delete a record from the database.
-     *
-     * @param mixed $id
-     *
-     * @return int
+     * @inheritdoc
      */
     public function delete($id = null)
     {
@@ -677,11 +627,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Set the collection which the query is targeting.
-     *
-     * @param string $collection
-     *
-     * @return Builder
+     * @inheritdoc
      */
     public function from($collection)
     {
@@ -693,7 +639,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Run a truncate statement on the table.
+     * @inheritdoc
      */
     public function truncate()
     {
@@ -706,10 +652,8 @@ class Builder extends BaseBuilder
      * Get an array with the values of a given column.
      *
      * @deprecated
-     *
-     * @param string $column
-     * @param string $key
-     *
+     * @param  string $column
+     * @param  string $key
      * @return array
      */
     public function lists($column, $key = null)
@@ -718,21 +662,15 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Create a raw database expression.
-     *
-     * @param closure $expression
-     *
-     * @return mixed
+     * @inheritdoc
      */
     public function raw($expression = null)
     {
         // Execute the closure on the mongodb collection
         if ($expression instanceof Closure) {
             return call_user_func($expression, $this->collection);
-        }
-
-        // Create an expression for the given value
-        elseif (!is_null($expression)) {
+        } // Create an expression for the given value
+        elseif (! is_null($expression)) {
             return new Expression($expression);
         }
 
@@ -745,7 +683,7 @@ class Builder extends BaseBuilder
      *
      * @param mixed $column
      * @param mixed $value
-     *
+     * @param bool  $unique
      * @return int
      */
     public function push($column, $value = null, $unique = false)
@@ -770,9 +708,8 @@ class Builder extends BaseBuilder
     /**
      * Remove one or more values from an array.
      *
-     * @param mixed $column
-     * @param mixed $value
-     *
+     * @param  mixed $column
+     * @param  mixed $value
      * @return int
      */
     public function pull($column, $value = null)
@@ -817,27 +754,24 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Get a new instance of the query builder.
-     *
-     * @return Builder
+     * @inheritdoc
      */
     public function newQuery()
     {
-        return new self($this->connection, $this->processor);
+        return new Builder($this->connection, $this->processor);
     }
 
     /**
      * Perform an update query.
      *
-     * @param array $query
-     * @param array $options
-     *
+     * @param  array $query
+     * @param  array $options
      * @return int
      */
     protected function performUpdate($query, array $options = [])
     {
         // Update multiple items by default.
-        if (!array_key_exists('multiple', $options)) {
+        if (! array_key_exists('multiple', $options)) {
             $options['multiple'] = true;
         }
 
@@ -853,8 +787,7 @@ class Builder extends BaseBuilder
     /**
      * Convert a key to ObjectID if needed.
      *
-     * @param mixed $id
-     *
+     * @param  mixed $id
      * @return mixed
      */
     public function convertKey($id)
@@ -867,16 +800,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Add a basic where clause to the query.
-     *
-     * @param string $column
-     * @param string $operator
-     * @param mixed  $value
-     * @param string $boolean
-     *
-     * @throws \InvalidArgumentException
-     *
-     * @return \Illuminate\Database\Query\Builder|static
+     * @inheritdoc
      */
     public function where($column, $operator = null, $value = null, $boolean = 'and')
     {
@@ -914,14 +838,14 @@ class Builder extends BaseBuilder
 
                 // Operator conversions
                 $convert = [
-                    'regexp'        => 'regex',
-                    'elemmatch'     => 'elemMatch',
+                    'regexp' => 'regex',
+                    'elemmatch' => 'elemMatch',
                     'geointersects' => 'geoIntersects',
-                    'geowithin'     => 'geoWithin',
-                    'nearsphere'    => 'nearSphere',
-                    'maxdistance'   => 'maxDistance',
-                    'centersphere'  => 'centerSphere',
-                    'uniquedocs'    => 'uniqueDocs',
+                    'geowithin' => 'geoWithin',
+                    'nearsphere' => 'nearSphere',
+                    'maxdistance' => 'maxDistance',
+                    'centersphere' => 'centerSphere',
+                    'uniquedocs' => 'uniqueDocs',
                 ];
 
                 if (array_key_exists($where['operator'], $convert)) {
@@ -936,26 +860,23 @@ class Builder extends BaseBuilder
                     foreach ($where['values'] as &$value) {
                         $value = $this->convertKey($value);
                     }
-                }
-
-                // Single value.
+                } // Single value.
                 elseif (isset($where['value'])) {
                     $where['value'] = $this->convertKey($where['value']);
                 }
             }
 
             // Convert DateTime values to UTCDateTime.
-            if (isset($where['value']) and $where['value'] instanceof DateTime) {
-                $where['value'] = $this->dateTimeConvertion($where['value']);
-            }
-
-            // Convert DateTime values to UTCDateTime in $where['values'] key.
-            if (array_key_exists('values', $where)) {
-                if (is_array($where['values']) && !empty($where['values'])) {
-                    foreach ($where['values'] as $keyWhere => $valueWhere) {
-                        if ($valueWhere instanceof DateTime) {
-                            $where['values'][$keyWhere] = $this->dateTimeConvertion($valueWhere);
+            if (isset($where['value'])) {
+                if (is_array($where['value'])) {
+                    array_walk_recursive($where['value'], function (&$item, $key) {
+                        if ($item instanceof DateTime) {
+                            $item = new UTCDateTime($item->getTimestamp() * 1000);
                         }
+                    });
+                } else {
+                    if ($where['value'] instanceof DateTime) {
+                        $where['value'] = new UTCDateTime($where['value']->getTimestamp() * 1000);
                     }
                 }
             }
@@ -989,7 +910,11 @@ class Builder extends BaseBuilder
         return $compiled;
     }
 
-    protected function compileWhereBasic($where)
+    /**
+     * @param array $where
+     * @return array
+     */
+    protected function compileWhereBasic(array $where)
     {
         extract($where);
 
@@ -1001,20 +926,18 @@ class Builder extends BaseBuilder
             $regex = preg_replace('#(^|[^\\\])%#', '$1.*', preg_quote($value));
 
             // Convert like to regular expression.
-            if (!starts_with($value, '%')) {
+            if (! starts_with($value, '%')) {
                 $regex = '^'.$regex;
             }
-            if (!ends_with($value, '%')) {
+            if (! ends_with($value, '%')) {
                 $regex = $regex.'$';
             }
 
             $value = new Regex($regex, 'i');
-        }
-
-        // Manipulate regexp operations.
+        } // Manipulate regexp operations.
         elseif (in_array($operator, ['regexp', 'not regexp', 'regex', 'not regex'])) {
             // Automatically convert regular expression strings to Regex objects.
-            if (!$value instanceof Regex) {
+            if (! $value instanceof Regex) {
                 $e = explode('/', $value);
                 $flag = end($e);
                 $regstr = substr($value, 1, -(strlen($flag) + 1));
@@ -1039,28 +962,44 @@ class Builder extends BaseBuilder
         return $query;
     }
 
-    protected function compileWhereNested($where)
+    /**
+     * @param array $where
+     * @return mixed
+     */
+    protected function compileWhereNested(array $where)
     {
         extract($where);
 
         return $query->compileWheres();
     }
 
-    protected function compileWhereIn($where)
+    /**
+     * @param array $where
+     * @return array
+     */
+    protected function compileWhereIn(array $where)
     {
         extract($where);
 
         return [$column => ['$in' => array_values($values)]];
     }
 
-    protected function compileWhereNotIn($where)
+    /**
+     * @param array $where
+     * @return array
+     */
+    protected function compileWhereNotIn(array $where)
     {
         extract($where);
 
         return [$column => ['$nin' => array_values($values)]];
     }
 
-    protected function compileWhereNull($where)
+    /**
+     * @param array $where
+     * @return array
+     */
+    protected function compileWhereNull(array $where)
     {
         $where['operator'] = '=';
         $where['value'] = null;
@@ -1068,7 +1007,11 @@ class Builder extends BaseBuilder
         return $this->compileWhereBasic($where);
     }
 
-    protected function compileWhereNotNull($where)
+    /**
+     * @param array $where
+     * @return array
+     */
+    protected function compileWhereNotNull(array $where)
     {
         $where['operator'] = '!=';
         $where['value'] = null;
@@ -1076,7 +1019,11 @@ class Builder extends BaseBuilder
         return $this->compileWhereBasic($where);
     }
 
-    protected function compileWhereBetween($where)
+    /**
+     * @param array $where
+     * @return array
+     */
+    protected function compileWhereBetween(array $where)
     {
         extract($where);
 
@@ -1105,32 +1052,19 @@ class Builder extends BaseBuilder
         }
     }
 
-    protected function compileWhereRaw($where)
+    /**
+     * @param array $where
+     * @return mixed
+     */
+    protected function compileWhereRaw(array $where)
     {
         return $where['sql'];
     }
 
     /**
-     * Convert to MongoDB\BSON\UTCDateTime if $value is a DateTime object.
-     *
-     * @param mixed $value
-     *
-     * @return mixed
-     */
-    protected function dateTimeConvertion($value)
-    {
-        if ($value instanceof DateTime) {
-            return new UTCDateTime($value->getTimestamp() * 1000);
-        }
-
-        return $value;
-    }
-
-    /**
      * Set custom options for the query.
      *
-     * @param array $options
-     *
+     * @param  array $options
      * @return $this
      */
     public function options(array $options)
@@ -1141,12 +1075,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Handle dynamic method calls into the method.
-     *
-     * @param string $method
-     * @param array  $parameters
-     *
-     * @return mixed
+     * @inheritdoc
      */
     public function __call($method, $parameters)
     {

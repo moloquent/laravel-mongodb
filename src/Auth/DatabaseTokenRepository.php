@@ -10,12 +10,7 @@ use MongoDB\BSON\UTCDateTime;
 class DatabaseTokenRepository extends BaseDatabaseTokenRepository
 {
     /**
-     * Build the record payload for the table.
-     *
-     * @param string $email
-     * @param string $token
-     *
-     * @return array
+     * @inheritdoc
      */
     protected function getPayload($email, $token)
     {
@@ -23,11 +18,7 @@ class DatabaseTokenRepository extends BaseDatabaseTokenRepository
     }
 
     /**
-     * Determine if the token has expired.
-     *
-     * @param array $token
-     *
-     * @return bool
+     * @inheritdoc
      */
     protected function tokenExpired($token)
     {
