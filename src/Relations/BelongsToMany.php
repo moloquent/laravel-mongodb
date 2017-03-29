@@ -198,7 +198,7 @@ class BelongsToMany extends EloquentBelongsToMany
         }
 
         // Attach the new ids to the parent model.
-        $this->parent->push($this->otherKey, (array) $id, true);
+        $this->parent->push($this->foreignKey, (array) $id, true);
 
         if ($touch) {
             $this->touchIfTouching();
