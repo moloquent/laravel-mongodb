@@ -231,7 +231,8 @@ trait HybridRelations
         // name of the calling function. We will use that function name as the
         // title of this relation since that is a great convention to apply.
         if (is_null($relation)) {
-            $relation = $this->guessBelongsToManyRelation();
+            list($one, $two, $caller) = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+            $relation = $caller["function"];
         }
 
         // Check if it is a relation with an original model.
