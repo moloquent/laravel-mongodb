@@ -49,6 +49,7 @@ class HasMany extends EloquentHasMany
      */
     public function getPlainForeignKey()
     {
-        return $this->getForeignKey();
+        $functionName = (method_exists($this, 'getForeignKey')) ? $this->getForeignKey : $this->getForeignKeyName() ;
+        return $functionName;
     }
 }
