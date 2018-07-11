@@ -109,6 +109,17 @@ class Builder extends BaseBuilder
     }
 
     /**
+     * Returns the connection name.
+     *
+     * @return string
+     */
+
+    public function getName()
+    {
+        return env("DB_CONNECTION");
+    } 
+
+    /**
      * Returns true if Laravel or Lumen >= 5.3.
      *
      * @return bool
