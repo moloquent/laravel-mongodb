@@ -196,7 +196,7 @@ abstract class Model extends BaseModel
      *
      * @return string
      */
-    protected function getDateFormat()
+    public function getDateFormat()
     {
         return $this->dateFormat ?: 'Y-m-d H:i:s';
     }
