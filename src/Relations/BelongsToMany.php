@@ -15,7 +15,14 @@ class BelongsToMany extends EloquentBelongsToMany
      */
     protected function hydratePivotRelation(array $models)
     {
-        // Do nothing.
+        // To hydrate the pivot relationship, we will just gather the pivot attributes
+        // and create a new Pivot model, which is basically a dynamic model that we
+        // will set the attributes, table, and connections on it so it will work.
+        foreach ($models as $model) {
+            $model->setRelation($this->accessor, $this->newExistingPivot(
+                $this->migratePivotAttributes($model)
+            ));
+        }
     }
 
     /**
@@ -35,7 +42,11 @@ class BelongsToMany extends EloquentBelongsToMany
      */
     protected function shouldSelect(array $columns = ['*'])
     {
-        return $columns;
+         if ($columns == ['*']) {
+            $columns = [$this->related->getTable().'.*'];
+        }
+
+        return array_merge($columns, $this->aliasedPivotColumns());
     }
 
     /**
@@ -43,6 +54,7 @@ class BelongsToMany extends EloquentBelongsToMany
      */
     public function addConstraints()
     {
+	 $this->performJoin();    
         if (static::$constraints) {
             $this->setWhere();
         }
